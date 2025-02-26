@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI写真换脸工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2b5aed;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .description {
+            margin-bottom: 30px;
+            font-size: 15px;
+            color: #666;
+        }
+        
+        .steps {
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 3px solid #2b5aed;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #2b5aed;
+        }
+        
+        .step-content {
+            font-size: 15px;
+            color: #555;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            display: block;
+            padding: 15px 20px;
+            background-color: #2b5aed;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(43, 90, 237, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn:hover {
+            background-color: #1a46c8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(43, 90, 237, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            box-shadow: 0 6px 12px rgba(108, 117, 125, 0.3);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .tips {
+            background-color: #f8f9fa;
+            border-left: 3px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 2% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 900px;
+            height: 90%;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalopen 0.3s;
+        }
+        
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .close-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            z-index: 1010;
+            background: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .close-btn:hover {
+            color: #000;
+            background: #f1f1f1;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+        }
+        
+        .back-btn {
+            display: none;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #f1f1f1;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        @media (min-width: 768px) {
+            .buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+            
+            .btn {
+                width: 45%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI写真换脸工具</h1>
+        
+        <div class="description">
+            欢迎使用AI写真换脸工具！通过简单的两步操作，您可以快速生成专业级AI写真照片。
+        </div>
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-title">第一步：上传照片</div>
+                <div class="step-content">
+                    上传您想要进行换脸的照片和背景模板照片。请按要求填写关键词，方便后续查询。
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title">第二步：查询结果</div>
+                <div class="step-content">
+                    上传后等待20-30秒，使用您填写的关键词查询生成结果。生成成功后，您可以下载高清AI写真照片。
+                </div>
+            </div>
+        </div>
+        
+        <div class="tips">
+            <strong>小贴士：</strong> 为获得最佳效果，请上传清晰的正面照片，并选择合适的背景模板。处理时间约为20-30秒，请耐心等待。
+        </div>
+        
+        <div class="buttons">
+            <button class="btn" onclick="openModal('uploadModal')">上传照片</button>
+            <button class="btn btn-secondary" onclick="openModal('queryModal')">查询结果</button>
+        </div>
+    </div>
+    
+    <!-- 上传照片弹窗 -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('uploadModal')">&times;</span>
+            <iframe src="https://w2w9os02q1.feishu.cn/share/base/form/shrcnIg8oSB0z0wioNAVyxkdXre"></iframe>
+        </div>
+    </div>
+    
+    <!-- 查询结果弹窗 -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('queryModal')">&times;</span>
+            <iframe src="https://w2w9os02q1.feishu.cn/share/base/query/shrcn0NWFZ5NR1TCAfLzrHjqejb"></iframe>
+        </div>
+    </div>
+    
+    <div class="footer">
+        © 2025 AI写真换脸工具 | 使用飞书多维表格提供技术支持
+    </div>
+    
+    <script>
+        // 打开弹窗
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+            document.body.style.overflow = "hidden"; // 防止背景滚动
+        }
+        
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+            document.body.style.overflow = "auto"; // 恢复背景滚动
+        }
+        
+        // 点击弹窗外区域关闭弹窗
+        window.onclick = function(event) {
+            if (event.target.className === "modal") {
+                event.target.style.display = "none";
+                document.body.style.overflow = "auto";
+            }
+        }
+        
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                document.querySelectorAll('.modal').forEach(function(modal) {
+                    if (modal.style.display === "block") {
+                        modal.style.display = "none";
+                        document.body.style.overflow = "auto";
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
